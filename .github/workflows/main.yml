@@ -7,22 +7,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk unzip
+          # Instalamos TODO lo necesario, incluyendo librerías de 32 bits (fundamentales para el SDK)
+          sudo apt-get install -y \
+            python3-pip build-essential git python3-dev ffmpeg libsdl2-dev \
+            libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev \
+            libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev \
+            libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            openjdk-17-jdk unzip zip libncurses5 libstdc++6 python3-setuptools \
+            autoconf libtool pkg-config ant
           pip3 install --user --upgrade Cython==0.29.33 buildozer
 
-      - name: Install Android SDK
-        run: |
-          # Esto instala las herramientas que el error decía que faltaban
-          yes | buildozer android debug --bootstrap || true
-
-      - name: Build with Buildozer
+      - name: Configure and Build
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Este comando fuerza la creación del APK ignorando errores de primer inicio
-          buildozer -v android debug
+          # Forzamos la aceptación de todas las licencias de Google
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          # Este comando es el truco maestro: intenta compilar y acepta las licencias automáticamente
+          yes | buildozer -v android debug
+        continue-on-error: false
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
