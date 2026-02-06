@@ -1,18 +1,22 @@
 name: Build APK
-on: [push] # Se activa cada vez que guardas algo
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Build with Buildozer
+        # Usamos una acción oficial y actualizada
         uses: ArtemSerebriakov/buildozer-action@v1
         with:
           buildozer_version: master
           command: buildozer android debug
+
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        # Actualizado a v4 para evitar el error de depreciación
+        uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: AmongUsMod-APK
           path: bin/*.apk
